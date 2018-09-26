@@ -144,11 +144,12 @@ class LSTM(nn.Module):
         with torch.no_grad():  # no need to track history in sampling
             input = inputTensor(start_letter)
             hidden = self.initHidden()
+            output = self.initHidden()
 
             output_pickup = start_letter
 
             for i in range(max_length):
-                output, hidden = self(input[0], hidden)
+                output, hidden,state = self(input[0], hidden,state)
                 topv, topi = output.topk(1)
                 topi = topi[0][0]
                 if topi == n_letters - 1:
