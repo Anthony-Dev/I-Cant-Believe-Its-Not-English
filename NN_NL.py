@@ -144,7 +144,7 @@ class LSTM(nn.Module):
         with torch.no_grad():  # no need to track history in sampling
             input = inputTensor(start_letter)
             hidden = self.initHidden()
-            output = self.initHidden()
+            state = self.initHidden()
 
             output_pickup = start_letter
 
