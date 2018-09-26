@@ -104,6 +104,64 @@ class RNN(nn.Module):
     def initHidden(self):
         return torch.zeros(1, self.hidden_size)
 
+class LSTM(nn.Module):
+    def __init__(self,input_size, hidden_size, output_size):
+        super(LSTM, self).__init__()
+
+        self.lstm = nn.LSTMCell(input_size,hidden_size)
+        self.dropout = nn.Dropout(0.1)
+        self.softmax = nn.LogSoftmax(dim=1)
+
+        self.hidden_size = hidden_size
+        self.criterion = nn.NLLLoss()
+        self.learning_rate = 0.0005
+    def forward(self, input, hidden, state):
+        hidden, state = self.lstm(input,(hidden,state))
+        output = self.softmax(self.dropout(state))
+        return output,hidden,state
+    def initHidden(self):
+        print('The LSTM does not need this method.')
+        return torch.zeros(1, self.hidden_size)
+    def train(self,input_line_tensor, target_line_tensor):
+        target_line_tensor.unsqueeze_(-1)
+        hidden = torch.zeros(1, self.hidden_size)
+        state = torch.zeros(1, self.hidden_size)
+
+        self.zero_grad()
+
+        loss = 0
+        for i in range(input_line_tensor.size(0)):
+            output, hidden, state = self(input_line_tensor[i], hidden, state)
+            l = self.criterion(output, target_line_tensor[i])
+            loss += l
+        loss.backward()
+
+        for p in self.parameters():
+            p.data.add_(-self.learning_rate, p.grad.data)
+
+        return output, loss.item() / input_line_tensor.size(0)
+    def sample(self,start_letter='A'):
+        with torch.no_grad():  # no need to track history in sampling
+            input = inputTensor(start_letter)
+            hidden = self.initHidden()
+
+            output_pickup = start_letter
+
+            for i in range(max_length):
+                output, hidden = self(input[0], hidden)
+                topv, topi = output.topk(1)
+                topi = topi[0][0]
+                if topi == n_letters - 1:
+                    break
+                else:
+                    letter = all_letters[topi]
+                    output_pickup += letter
+                input = inputTensor(letter)
+
+            return output_pickup
+    def samples(self, start_letters='ABC'):
+        for start_letter in start_letters:
+            print(self.sample(start_letter))
 
 
 criterion = nn.NLLLoss()
@@ -159,7 +217,8 @@ def samples(start_letters='ABC'):
         print(sample(start_letter))
 
 pickups = readLines('./pickuplines.txt')
-rnn = RNN(n_letters, 128, n_letters)
+#rnn = RNN(n_letters, 128, n_letters)
+lstm = LSTM(n_letters,128,n_letters)
 
 n_iters = 100000
 print_every = 500
@@ -172,7 +231,8 @@ start = time.time()
 print('Testing')
 for iter in range(1, n_iters + 1):
     printProgress(iter,i_max=n_iters)
-    output, loss = train(*randomTrainingExample(pickups))
+    #output, loss = train(*randomTrainingExample(pickups))
+    output, loss = lstm.train(*randomTrainingExample(pickups))
     total_loss += loss
 
     if iter % print_every == 0:
@@ -181,5 +241,5 @@ for iter in range(1, n_iters + 1):
     if iter % plot_every == 0:
         all_losses.append(total_loss / plot_every)
         total_loss = 0
-
-samples('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+#samples('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+lstm.samples('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
