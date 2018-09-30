@@ -245,7 +245,7 @@ start = time.time()
 
 print('Testing')
 for iter in range(1, n_iters + 1):
-    printProgress(iter)#,i_max=n_iters)
+    printProgress(iter,i_max=n_iters)
     #output, loss = train(*randomTrainingExample(pickups))
     output, loss = lstm.train(*randomTrainingExample(pickups))
     total_loss += loss
