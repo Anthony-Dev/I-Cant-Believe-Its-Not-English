@@ -226,7 +226,7 @@ pickups += readLines('./fun/HPHB.txt')
 pickups += readLines('./fun/HPDH.txt')
 
 #rnn = RNN(n_letters, 128, n_letters)
-lstm = LSTM(n_letters,256,n_letters)
+lstm = LSTM(n_letters,512,n_letters)
 
 n_iters = 100000
 print_every = 500
