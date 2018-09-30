@@ -11,6 +11,20 @@ import sys
 import random
 import time
 import math
+import matplotlib.pyplot as plt
+
+import argparse
+parser = argparse.ArgumentParser(description='PyTorch LSTM')
+parser.add_argument('--disable-cuda', action='store_true',
+                    help='Disable CUDA')
+args = parser.parse_args()
+args.device = None
+if not args.disable_cuda and torch.cuda.is_available():
+    print('Using CUDA Mode.')
+    args.device = torch.device('cuda')
+else:
+    print('Using CPU Mode.')
+    args.device = torch.device('cpu')
 
 def timeSince(since):
     now = time.time()
@@ -80,30 +94,6 @@ def randomTrainingExample(data):
     target_line_tensor = targetTensor(line)
     return input_line_tensor, target_line_tensor
 
-class RNN(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size):
-        super(RNN, self).__init__()
-        self.hidden_size = hidden_size
-
-        self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
-        self.i2o = nn.Linear(input_size + hidden_size, output_size)
-        self.o2o = nn.Linear(hidden_size + output_size, output_size)
-        self.dropout = nn.Dropout(0.1)
-        self.softmax = nn.LogSoftmax(dim=1)
-
-    def forward(self, input, hidden):
-        input_combined = torch.cat((input, hidden), 1)
-        hidden = self.i2h(input_combined)
-        output = self.i2o(input_combined)
-        output_combined = torch.cat((hidden, output), 1)
-        output = self.o2o(output_combined)
-        output = self.dropout(output)
-        output = self.softmax(output)
-        return output, hidden
-
-    def initHidden(self):
-        return torch.zeros(1, self.hidden_size)
-
 class LSTM(nn.Module):
     def __init__(self,input_size, hidden_size, output_size):
         super(LSTM, self).__init__()
@@ -120,7 +110,6 @@ class LSTM(nn.Module):
         output = self.softmax(self.dropout(state))
         return output,hidden,state
     def initHidden(self):
-        print('The LSTM does not need this method.')
         return torch.zeros(1, self.hidden_size)
     def train(self,input_line_tensor, target_line_tensor):
         target_line_tensor.unsqueeze_(-1)
@@ -168,54 +157,7 @@ class LSTM(nn.Module):
 criterion = nn.NLLLoss()
 
 learning_rate = 0.0005
-
-def train(input_line_tensor, target_line_tensor):
-    target_line_tensor.unsqueeze_(-1)
-    hidden = rnn.initHidden()
-
-    rnn.zero_grad()
-
-    loss = 0
-
-    for i in range(input_line_tensor.size(0)):
-        output, hidden = rnn(input_line_tensor[i], hidden)
-        l = criterion(output, target_line_tensor[i])
-        loss += l
-
-    loss.backward()
-
-    for p in rnn.parameters():
-        p.data.add_(-learning_rate, p.grad.data)
-
-    return output, loss.item() / input_line_tensor.size(0)
-
 max_length = 180
-
-# Sample from a category and starting letter
-def sample(start_letter='A'):
-    with torch.no_grad():  # no need to track history in sampling
-        input = inputTensor(start_letter)
-        hidden = rnn.initHidden()
-
-        output_pickup = start_letter
-
-        for i in range(max_length):
-            output, hidden = rnn(input[0], hidden)
-            topv, topi = output.topk(1)
-            topi = topi[0][0]
-            if topi == n_letters - 1:
-                break
-            else:
-                letter = all_letters[topi]
-                output_pickup += letter
-            input = inputTensor(letter)
-
-        return output_pickup
-
-# Get multiple samples from one category and multiple starting letters
-def samples(start_letters='ABC'):
-    for start_letter in start_letters:
-        print(sample(start_letter))
 
 pickups = readLines('./fun/HPSS.txt', sentenceDelimiter='.')
 print('Length of data: ' + str(len(pickups)))
@@ -232,8 +174,9 @@ print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 #random.shuffle(pickups)
-#rnn = RNN(n_letters, 128, n_letters)
+
 lstm = LSTM(n_letters,256,n_letters)
+lstm.to(device=args.device)
 
 n_iters = 100000
 print_every = 500
@@ -246,7 +189,6 @@ start = time.time()
 print('Testing')
 for iter in range(1, n_iters + 1):
     printProgress(iter,i_max=n_iters)
-    #output, loss = train(*randomTrainingExample(pickups))
     output, loss = lstm.train(*randomTrainingExample(pickups))
     total_loss += loss
 
@@ -256,5 +198,7 @@ for iter in range(1, n_iters + 1):
     if iter % plot_every == 0:
         all_losses.append(total_loss / plot_every)
         total_loss = 0
-#samples('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+plt.figure()
+plt.scatter(range(len(all_losses)), all_losses)
+plt.savefig('train.png')
 lstm.samples('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
