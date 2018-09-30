@@ -224,13 +224,14 @@ pickups += readLines('./fun/HPGF.txt')
 pickups += readLines('./fun/HPOP.txt')
 pickups += readLines('./fun/HPHB.txt')
 pickups += readLines('./fun/HPDH.txt')
+print('Length of data: ' + len(pickups))
 #random.shuffle(pickups)
 #rnn = RNN(n_letters, 128, n_letters)
-lstm = LSTM(n_letters,256,n_letters)
+lstm = LSTM(n_letters,128,n_letters)
 
 n_iters = 100000
 print_every = 500
-plot_every = 500
+plot_every = 50
 all_losses = []
 total_loss = 0 # Reset every plot_every iters
 
@@ -238,7 +239,7 @@ start = time.time()
 
 print('Testing')
 for iter in range(1, n_iters + 1):
-    printProgress(iter,i_max=n_iters)
+    printProgress(iter)#,i_max=n_iters)
     #output, loss = train(*randomTrainingExample(pickups))
     output, loss = lstm.train(*randomTrainingExample(pickups))
     total_loss += loss
