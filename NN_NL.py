@@ -50,9 +50,9 @@ def unicodeToAscii(s):
         and c in all_letters
     )
 
-def readLines(filename):
+def readLines(filename,sentenceDelimiter='@'):
     with open(filename, "r") as file:
-        contents = file.read().strip('s').split('@')
+        contents = file.read().strip('s').split(sentenceDelimiter)
         contents = [unicodeToAscii(sentence) for sentence in contents if sentence]
     return contents
 
@@ -217,13 +217,13 @@ def samples(start_letters='ABC'):
     for start_letter in start_letters:
         print(sample(start_letter))
 
-pickups = readLines('./fun/HPSS.txt')
-pickups += readLines('./fun/HPCS.txt')
-pickups += readLines('./fun/HPPA.txt')
-pickups += readLines('./fun/HPGF.txt')
-pickups += readLines('./fun/HPOP.txt')
-pickups += readLines('./fun/HPHB.txt')
-pickups += readLines('./fun/HPDH.txt')
+pickups = readLines('./fun/HPSS.txt', sentenceDelimiter='.')
+pickups += readLines('./fun/HPCS.txt', sentenceDelimiter='.')
+pickups += readLines('./fun/HPPA.txt', sentenceDelimiter='.')
+pickups += readLines('./fun/HPGF.txt', sentenceDelimiter='.')
+pickups += readLines('./fun/HPOP.txt', sentenceDelimiter='.')
+pickups += readLines('./fun/HPHB.txt', sentenceDelimiter='.')
+pickups += readLines('./fun/HPDH.txt', sentenceDelimiter='.')
 print('Length of data: ' + str(len(pickups)))
 #random.shuffle(pickups)
 #rnn = RNN(n_letters, 128, n_letters)
