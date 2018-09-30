@@ -53,7 +53,7 @@ def unicodeToAscii(s):
 def readLines(filename):
     with open(filename, "r") as file:
         contents = file.read().strip('s').split('@')
-        contents = [unicodeToAscii(sentence) for sentence in contents]
+        contents = [unicodeToAscii(sentence) for sentence in contents if sentence]
     return contents
 
 # One-hot matrix of first to last letters (not including EOS) for input
@@ -224,9 +224,9 @@ pickups += readLines('./fun/HPGF.txt')
 pickups += readLines('./fun/HPOP.txt')
 pickups += readLines('./fun/HPHB.txt')
 pickups += readLines('./fun/HPDH.txt')
-
+#random.shuffle(pickups)
 #rnn = RNN(n_letters, 128, n_letters)
-lstm = LSTM(n_letters,512,n_letters)
+lstm = LSTM(n_letters,256,n_letters)
 
 n_iters = 100000
 print_every = 500
