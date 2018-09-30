@@ -173,6 +173,8 @@ pickups.extend(readLines('./fun/HPHB.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
+pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
+print('Length of data: ' + str(len(pickups)))
 #random.shuffle(pickups)
 
 lstm = LSTM(n_letters,256,n_letters)
