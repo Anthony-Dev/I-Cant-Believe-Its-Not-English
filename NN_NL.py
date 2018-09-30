@@ -217,9 +217,16 @@ def samples(start_letters='ABC'):
     for start_letter in start_letters:
         print(sample(start_letter))
 
-pickups = readLines('./pickuplines.txt')
+pickups = readLines('./fun/HPSS.txt')
+pickups += readLines('./fun/HPCS.txt')
+pickups += readLines('./fun/HPPA.txt')
+pickups += readLines('./fun/HPGF.txt')
+pickups += readLines('./fun/HPOP.txt')
+pickups += readLines('./fun/HPHB.txt')
+pickups += readLines('./fun/HPDH.txt')
+
 #rnn = RNN(n_letters, 128, n_letters)
-lstm = LSTM(n_letters,128,n_letters)
+lstm = LSTM(n_letters,256,n_letters)
 
 n_iters = 100000
 print_every = 500
