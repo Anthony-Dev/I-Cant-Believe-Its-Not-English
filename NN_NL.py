@@ -82,7 +82,7 @@ def inputTensor(line):
 def targetTensor(line):
     letter_indices = [all_letters.find(line[li]) for li in range(1, len(line))]
     letter_indices.append(n_letters - 1) # EOS
-    return torch.LongTensor(letter_indices,device=args.device)
+    return torch.LongTensor(letter_indices).to(device=args.device)
 
 def randomChoice(l):
     return l[random.randint(0, len(l) - 1)]
@@ -154,9 +154,6 @@ class LSTM(nn.Module):
     def samples(self, start_letters='ABC'):
         for start_letter in start_letters:
             print(self.sample(start_letter))
-
-
-criterion = nn.NLLLoss()
 
 learning_rate = 0.0005
 max_length = 180
