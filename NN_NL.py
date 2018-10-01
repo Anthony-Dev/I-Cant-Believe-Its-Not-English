@@ -72,7 +72,7 @@ def readLines(filename,sentenceDelimiter='@'):
 
 # One-hot matrix of first to last letters (not including EOS) for input
 def inputTensor(line):
-    tensor = torch.zeros(len(line), 1, n_letters)
+    tensor = torch.zeros(len(line), 1, n_letters,device=args.device)
     for li in range(len(line)):
         letter = line[li]
         tensor[li][0][all_letters.find(letter)] = 1
@@ -82,7 +82,7 @@ def inputTensor(line):
 def targetTensor(line):
     letter_indices = [all_letters.find(line[li]) for li in range(1, len(line))]
     letter_indices.append(n_letters - 1) # EOS
-    return torch.LongTensor(letter_indices)
+    return torch.LongTensor(letter_indices,device=args.device)
 
 def randomChoice(l):
     return l[random.randint(0, len(l) - 1)]
@@ -112,11 +112,11 @@ class LSTM(nn.Module):
         output = self.softmax(self.dropout(state))
         return output,hidden,state
     def initHidden(self):
-        return torch.zeros(1, self.hidden_size)
+        return torch.zeros(1, self.hidden_size,device=args.device)
     def train(self,input_line_tensor, target_line_tensor):
         target_line_tensor.unsqueeze_(-1)
-        hidden = torch.zeros(1, self.hidden_size)
-        state = torch.zeros(1, self.hidden_size)
+        hidden = self.initHidden()
+        state = self.initHidden()
 
         self.zero_grad()
 
