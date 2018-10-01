@@ -108,8 +108,8 @@ class LSTM(nn.Module):
         self.learning_rate = 0.0005
     def forward(self, input, hidden, state):
         hidden, state = self.lstm(input,(hidden,state))
-        state = self.final(state)
-        output = self.softmax(self.dropout(state))
+        final = self.final(state)
+        output = self.softmax(self.dropout(final))
         return output,hidden,state
     def initHidden(self):
         return torch.zeros(1, self.hidden_size,device=args.device)
