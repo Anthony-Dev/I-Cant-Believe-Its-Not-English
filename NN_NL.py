@@ -104,7 +104,7 @@ class LSTM(nn.Module):
         self.softmax = nn.LogSoftmax(dim=1)
 
         self.hidden_size = hidden_size
-        self.criterion = nn.NLLLoss()
+        self.criterion = nn.NLLLoss().to(device=args.device)
         self.learning_rate = 0.0005
     def forward(self, input, hidden, state):
         hidden, state = self.lstm(input,(hidden,state))
