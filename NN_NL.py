@@ -173,14 +173,14 @@ pickups.extend(readLines('./fun/HPHB.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
-pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
-print('Length of data: ' + str(len(pickups)))
+#pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
+#rint('Length of data: ' + str(len(pickups)))
 #random.shuffle(pickups)
 
-lstm = LSTM(n_letters,256,n_letters)
+lstm = LSTM(n_letters,512,n_letters)
 lstm.to(device=args.device)
 
-n_iters = 100000
+n_iters = 50000
 print_every = 500
 plot_every = 50
 all_losses = []
@@ -201,6 +201,6 @@ for iter in range(1, n_iters + 1):
         all_losses.append(total_loss / plot_every)
         total_loss = 0
 plt.figure()
-plt.scatter(range(len(all_losses)), all_losses)
+plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
 lstm.samples('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
