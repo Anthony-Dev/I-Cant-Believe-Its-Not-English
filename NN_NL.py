@@ -12,6 +12,7 @@ import random
 import time
 import math
 import matplotlib.pyplot as plt
+import copy
 
 import argparse
 parser = argparse.ArgumentParser(description='PyTorch LSTM')
@@ -106,8 +107,11 @@ class LSTM(nn.Module):
         self.hidden_size = hidden_size
         self.criterion = nn.NLLLoss().to(device=args.device)
         self.learning_rate = 0.0005
+        self.bestLoss = math.inf
+        self.bestNN = None
     def forward(self, input, hidden, state):
         hidden, state = self.lstm(input,(hidden,state))
+
         final = self.final(state)
         output = self.softmax(self.dropout(final))
         return output,hidden,state
@@ -130,7 +134,12 @@ class LSTM(nn.Module):
         for p in self.parameters():
             p.data.add_(-self.learning_rate, p.grad.data)
 
-        return output, loss.item() / input_line_tensor.size(0)
+        lossFactor = loss.item() / input_line_tensor.size(0)
+        if (lossFactor < self.bestLoss):
+            self.bestNN = self.state_dict()
+            self.bestLoss = lossFactor
+
+        return output, lossFactor
     def sample(self,start_letter='A'):
         with torch.no_grad():  # no need to track history in sampling
             input = inputTensor(start_letter)
@@ -153,7 +162,9 @@ class LSTM(nn.Module):
             return output_pickup
     def samples(self, start_letters='ABC'):
         for start_letter in start_letters:
-            print(self.sample(start_letter))
+            woah = self.sample(start_letter)
+            print(woah)
+            yield woah
 
 learning_rate = 0.0005
 max_length = 180
@@ -172,6 +183,7 @@ pickups.extend(readLines('./fun/HPHB.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
+
 #pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
 #rint('Length of data: ' + str(len(pickups)))
 #random.shuffle(pickups)
@@ -179,7 +191,8 @@ print('Length of data: ' + str(len(pickups)))
 lstm = LSTM(n_letters,512,n_letters)
 lstm.to(device=args.device)
 
-n_iters = 10000
+
+n_iters = 50000
 print_every = 500
 plot_every = 50
 all_losses = []
@@ -202,4 +215,15 @@ for iter in range(1, n_iters + 1):
 plt.figure()
 plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
-lstm.samples('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
+with open('output.txt','w') as file:
+    try:
+        for sample in lstm.samples(('ABCDEFGHIJKLMNOPQRSTUVWXYZ')):
+            file.write(sample)
+        lstm.load_state_dict(lstm.bestNN)
+        print('==================== Best Network State ====================')
+        file.write('==================== Best Network State ====================')
+        for sample in lstm.samples(('ABCDEFGHIJKLMNOPQRSTUVWXYZ')):
+            file.write(sample)
+    finally:
+        file.close()
