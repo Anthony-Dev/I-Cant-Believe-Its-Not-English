@@ -180,7 +180,7 @@ print('Length of data: ' + str(len(pickups)))
 lstm = LSTM(n_letters,512,n_letters)
 lstm.to(device=args.device)
 
-n_iters = 50000
+n_iters = 10000
 print_every = 500
 plot_every = 50
 all_losses = []
