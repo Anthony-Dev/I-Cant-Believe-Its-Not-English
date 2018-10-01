@@ -99,6 +99,7 @@ class LSTM(nn.Module):
         super(LSTM, self).__init__()
 
         self.lstm = nn.LSTMCell(input_size,hidden_size)
+        self.final = nn.Linear(hidden_size,output_size)
         self.dropout = nn.Dropout(0.1)
         self.softmax = nn.LogSoftmax(dim=1)
 
@@ -107,6 +108,7 @@ class LSTM(nn.Module):
         self.learning_rate = 0.0005
     def forward(self, input, hidden, state):
         hidden, state = self.lstm(input,(hidden,state))
+        state = self.final(state)
         output = self.softmax(self.dropout(state))
         return output,hidden,state
     def initHidden(self):
