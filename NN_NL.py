@@ -198,7 +198,7 @@ print('Length of data: ' + str(len(pickups)))
 #pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
 #rint('Length of data: ' + str(len(pickups)))
 
-lstm = LSTM(n_letters,256,n_letters)
+lstm = LSTM(n_letters,128,n_letters)
 lstm.to(device=args.device)
 
 
