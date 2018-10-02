@@ -216,7 +216,7 @@ lstm = LSTM(n_letters,512,n_letters)
 lstm.to(device=args.device)
 
 
-n_iters = 1
+n_iters = 1000
 print_every = 100
 plot_every = 20
 all_losses = []
