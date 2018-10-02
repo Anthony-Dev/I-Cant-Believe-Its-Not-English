@@ -103,7 +103,7 @@ class LSTM(nn.Module):
         self.mid = nn.Linear(hidden_size,hidden_size)
         self.lstm2 = nn.LSTMCell(hidden_size,hidden_size)
         self.final = nn.Linear(hidden_size, output_size)
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(0.5)
 
         self.softmax = nn.LogSoftmax(dim=1)
 
@@ -198,7 +198,7 @@ print('Length of data: ' + str(len(pickups)))
 #pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
 #rint('Length of data: ' + str(len(pickups)))
 
-lstm = LSTM(n_letters,512,n_letters)
+lstm = LSTM(n_letters,256,n_letters)
 lstm.to(device=args.device)
 
 
