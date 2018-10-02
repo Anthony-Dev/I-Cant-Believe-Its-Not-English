@@ -114,10 +114,10 @@ class LSTM(nn.Module):
         self.bestNN = None
     def forward(self, input, hidden, state):
 
-        hidden1 = hidden[1:]
-        hidden2 = hidden[:1]
-        state1 = state[1:]
-        state2 = state[:1]
+        hidden1 = hidden[1:].to(device=args.device)
+        hidden2 = hidden[:1].to(device=args.device)
+        state1 = state[1:].to(device=args.device)
+        state2 = state[:1].to(device=args.device)
 
         hidden1, state1 = self.lstm(input,(hidden1,state1))
         mid = self.mid(state1)
@@ -181,7 +181,7 @@ learning_rate = 0.0005
 max_length = 180
 
 pickups = readLines('./fun/HPSS.txt', sentenceDelimiter='.')
-""" print('Length of data: ' + str(len(pickups)))
+print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPCS.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPPA.txt', sentenceDelimiter='.'))
@@ -193,7 +193,7 @@ print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPHB.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='.'))
-print('Length of data: ' + str(len(pickups))) """
+print('Length of data: ' + str(len(pickups)))
 
 #pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
 #rint('Length of data: ' + str(len(pickups)))
