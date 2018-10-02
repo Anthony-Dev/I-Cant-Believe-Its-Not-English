@@ -100,8 +100,11 @@ class LSTM(nn.Module):
         super(LSTM, self).__init__()
 
         self.lstm = nn.LSTMCell(input_size,hidden_size)
-        self.final = nn.Linear(hidden_size,output_size)
+        self.mid = nn.Linear(hidden_size,hidden_size)
+        self.lstm2 = nn.LSTMCell(hidden_size,hidden_size)
+        self.final = nn.Linear(hidden_size, output_size)
         self.dropout = nn.Dropout(0.1)
+
         self.softmax = nn.LogSoftmax(dim=1)
 
         self.hidden_size = hidden_size
@@ -110,13 +113,21 @@ class LSTM(nn.Module):
         self.bestLoss = math.inf
         self.bestNN = None
     def forward(self, input, hidden, state):
-        hidden, state = self.lstm(input,(hidden,state))
 
-        final = self.final(state)
+        hidden1 = hidden[1:]
+        hidden2 = hidden[:1]
+        state1 = state[1:]
+        state2 = state[:1]
+
+        hidden1, state1 = self.lstm(input,(hidden1,state1))
+        mid = self.mid(state1)
+        hidden2,state2 = self.lstm2(mid,(hidden2,state2))
+        final = self.final(state2)
         output = self.softmax(self.dropout(final))
-        return output,hidden,state
+        return output,torch.cat((hidden1,hidden2)),torch.cat((state1,state2))
     def initHidden(self):
-        return torch.zeros(1, self.hidden_size,device=args.device)
+        # First number is the number of layers
+        return torch.Tensor((),device=args.device).new_zeros(2, self.hidden_size)
     def train(self,input_line_tensor, target_line_tensor):
         target_line_tensor.unsqueeze_(-1)
         hidden = self.initHidden()
@@ -170,7 +181,7 @@ learning_rate = 0.0005
 max_length = 180
 
 pickups = readLines('./fun/HPSS.txt', sentenceDelimiter='.')
-print('Length of data: ' + str(len(pickups)))
+""" print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPCS.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPPA.txt', sentenceDelimiter='.'))
@@ -182,17 +193,16 @@ print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPHB.txt', sentenceDelimiter='.'))
 print('Length of data: ' + str(len(pickups)))
 pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='.'))
-print('Length of data: ' + str(len(pickups)))
+print('Length of data: ' + str(len(pickups))) """
 
 #pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
 #rint('Length of data: ' + str(len(pickups)))
-#random.shuffle(pickups)
 
 lstm = LSTM(n_letters,512,n_letters)
 lstm.to(device=args.device)
 
 
-n_iters = 100000
+n_iters = 10000
 print_every = 500
 plot_every = 50
 all_losses = []
