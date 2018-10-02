@@ -71,7 +71,7 @@ def readLines(filename,sentenceDelimiter='@'):
         contents = [unicodeToAscii(sentence) for sentence in contents if sentence]
     return contents
 
-# One-hot matrix of first to last letters (not including EOS) for input
+# One haought Kronecker Delta Tensor of first to last letters (not including EOS) for input
 def inputTensor(line):
     tensor = torch.zeros(len(line), 1, n_letters,device=args.device)
     for li in range(len(line)):
@@ -84,6 +84,17 @@ def targetTensor(line):
     letter_indices = [all_letters.find(line[li]) for li in range(1, len(line))]
     letter_indices.append(n_letters - 1) # EOS
     return torch.LongTensor(letter_indices).to(device=args.device)
+
+def readBook(filename):
+    with open(filename, "r") as file:
+        contents = unicodeToAscii(file.read())
+        return contents
+
+def getTrainingBatches(string,batchSize=1000):
+    inTensor = torch.split(inputTensor(string),batchSize)
+    outTensor = torch.split(targetTensor(string),batchSize)
+    for i in range(inTensor.size(0)):
+        yield inTensor[i],outTensor[i]
 
 def randomChoice(l):
     return l[random.randint(0, len(l) - 1)]
@@ -135,22 +146,25 @@ class LSTM(nn.Module):
 
         self.zero_grad()
 
-        loss = 0
         for i in range(input_line_tensor.size(0)):
+            printProgress(iter,i_max=input_line_tensor.size(0))
             output, hidden, state = self(input_line_tensor[i], hidden, state)
-            l = self.criterion(output, target_line_tensor[i])
-            loss += l
-        loss.backward()
+            loss = self.criterion(output, target_line_tensor[i])
+            if (i < input_line_tensor.size(0) - 1):
+                loss.backward(retain_graph=True)
+            else:
+                loss.backward()
 
-        for p in self.parameters():
-            p.data.add_(-self.learning_rate, p.grad.data)
+            for p in self.parameters():
+                p.data.add_(-self.learning_rate, p.grad.data)
 
-        lossFactor = loss.item() / input_line_tensor.size(0)
-        if (lossFactor < self.bestLoss):
-            self.bestNN = self.state_dict()
-            self.bestLoss = lossFactor
+            lossFactor = loss.item() / input_line_tensor.size(0)
+            if (lossFactor < self.bestLoss):
+                self.bestNN = self.state_dict()
+                self.bestLoss = lossFactor
 
-        return output, lossFactor
+            yield i, output, lossFactor
+
     def sample(self,start_letter='A'):
         with torch.no_grad():  # no need to track history in sampling
             input = inputTensor(start_letter)
@@ -180,31 +194,31 @@ class LSTM(nn.Module):
 learning_rate = 0.0005
 max_length = 180
 
-pickups = readLines('./fun/HPSS.txt', sentenceDelimiter='.')
+pickups = readLines('./fun/HPSS.txt', sentenceDelimiter='CHAPTER')
 print('Length of data: ' + str(len(pickups)))
-pickups.extend(readLines('./fun/HPCS.txt', sentenceDelimiter='.'))
+pickups.extend(readLines('./fun/HPCS.txt', sentenceDelimiter='CHAPTER'))
 print('Length of data: ' + str(len(pickups)))
-pickups.extend(readLines('./fun/HPPA.txt', sentenceDelimiter='.'))
+pickups.extend(readLines('./fun/HPPA.txt', sentenceDelimiter='CHAPTER'))
 print('Length of data: ' + str(len(pickups)))
-pickups.extend(readLines('./fun/HPGF.txt', sentenceDelimiter='.'))
+pickups.extend(readLines('./fun/HPGF.txt', sentenceDelimiter='CHAPTER'))
 print('Length of data: ' + str(len(pickups)))
-pickups.extend(readLines('./fun/HPOP.txt', sentenceDelimiter='.'))
+pickups.extend(readLines('./fun/HPOP.txt', sentenceDelimiter='CHAPTER'))
 print('Length of data: ' + str(len(pickups)))
-pickups.extend(readLines('./fun/HPHB.txt', sentenceDelimiter='.'))
+pickups.extend(readLines('./fun/HPHB.txt', sentenceDelimiter='CHAPTER'))
 print('Length of data: ' + str(len(pickups)))
-pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='.'))
+pickups.extend(readLines('./fun/HPDH.txt', sentenceDelimiter='CHAPTER'))
 print('Length of data: ' + str(len(pickups)))
 
 #pickups.extend(readLines('./fun/BMovie.txt', sentenceDelimiter='.'))
 #rint('Length of data: ' + str(len(pickups)))
 
-lstm = LSTM(n_letters,128,n_letters)
+lstm = LSTM(n_letters,512,n_letters)
 lstm.to(device=args.device)
 
 
-n_iters = 10000
-print_every = 500
-plot_every = 50
+n_iters = 1
+print_every = 100
+plot_every = 20
 all_losses = []
 total_loss = 0 # Reset every plot_every iters
 
@@ -212,16 +226,16 @@ start = time.time()
 
 print('Testing')
 for iter in range(1, n_iters + 1):
-    printProgress(iter,i_max=n_iters)
-    output, loss = lstm.train(*randomTrainingExample(pickups))
-    total_loss += loss
 
-    if iter % print_every == 0:
-        print('%s (%d %d%%) %.4f' % (timeSince(start), iter, iter / n_iters * 100, loss))
+    for i, output, loss in lstm.train(*randomTrainingExample(pickups)):
+        total_loss += loss
+        if i*iter % print_every == 0:
+            print('%s (%d %d%%) %.4f' % (timeSince(start), i*iter, i*iter / n_iters * 100, loss))
 
-    if iter % plot_every == 0:
-        all_losses.append(total_loss / plot_every)
-        total_loss = 0
+        if i*iter % plot_every == 0:
+            all_losses.append(total_loss / plot_every)
+            total_loss = 0
+
 plt.figure()
 plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
