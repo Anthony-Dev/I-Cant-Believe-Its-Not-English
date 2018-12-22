@@ -4,7 +4,7 @@ from lib import tensorlib
 from NN import LSTM_NN
 import torch
 import time
-
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description='PyTorch LSTM')
 parser.add_argument('--disable-cuda', action='store_true',
@@ -24,8 +24,8 @@ text = support.readLines('./fun/HPSS.txt', sentenceDelimiter='.')
 
 lstm = LSTM_NN(support.n_letters,[128,128],support.n_letters,device=tensorlib.torch_device)
 
-n_iters = 100000
-print_every = 5000
+n_iters = 10000
+print_every = 50
 plot_every = 500
 all_losses = []
 total_loss = 0 # Reset every plot_every iters
@@ -43,3 +43,9 @@ for iter in range(1, n_iters + 1):
     if iter % plot_every == 0:
         all_losses.append(total_loss / plot_every)
         total_loss = 0
+
+plt.figure()
+plt.scatter(range(len(all_losses)), all_losses, s=1)
+plt.savefig('train.png')
+
+LSTM_NN.samples()
