@@ -20,7 +20,7 @@ else:
 
 tensorlib.torch_device = args.device
 
-text = support.readLines('./fun/HPSS.txt', sentenceDelimiter='.')
+text = support.readLines('./e.txt', sentenceDelimiter='.')
 
 lstm = LSTM_NN(support.n_letters,[128,128],support.n_letters,device=tensorlib.torch_device)
 
