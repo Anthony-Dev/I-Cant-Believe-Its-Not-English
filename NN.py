@@ -42,6 +42,8 @@ class LSTM_NN(nn.Module):
 
         self.max_sample_length = 180
 
+        self.optimizer = torch.optim.Adam(self.parameters())
+
     def forward(self, input, hidden_array, state_array):
         ''' It is critical that hidden_array is an array containing the hidden state of all layers of the NN '''
 
@@ -98,7 +100,8 @@ class LSTM_NN(nn.Module):
     def train(self,input_line_tensor, target_line_tensor):
         target_line_tensor.unsqueeze_(-1)
 
-        self.zero_grad()
+        #self.zero_grad()
+        self.optimizer.zero_grad()
 
         output,hidden,state = None,None,None
 
@@ -111,9 +114,11 @@ class LSTM_NN(nn.Module):
             loss += self.criterion(output,target_line_tensor[i])
 
         loss.backward()
-
+        '''
         for p in self.parameters():
             p.data.add_(-self.learning_rate,p.grad.data)
+        '''
+        self.optimizer.step()
 
         return output, loss.item() / input_line_tensor.size(0)
 
