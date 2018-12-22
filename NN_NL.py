@@ -69,7 +69,7 @@ class LSTM(nn.Module):
         self.zero_grad()
 
         for i in range(input_line_tensor.size(0)):
-            support.printProgress(iter,i_max=input_line_tensor.size(0))
+            support.printProgress(i,i_max=input_line_tensor.size(0))
             output, hidden, state = self(input_line_tensor[i], hidden, state)
             loss = self.criterion(output, target_line_tensor[i])
             if (i < input_line_tensor.size(0) - 1):
@@ -113,8 +113,6 @@ class LSTM(nn.Module):
             print(woah)
             yield woah
 
-learning_rate = 0.0005
-max_length = 180
 
 pickups = support.readLines('./fun/HPSS.txt', sentenceDelimiter='CHAPTER')
 '''

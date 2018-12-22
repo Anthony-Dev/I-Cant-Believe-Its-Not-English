@@ -1,6 +1,6 @@
 import torch
 from random import randint
-from . import support
+from lib import support
 
 torch_device = None
 
