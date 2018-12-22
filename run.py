@@ -47,6 +47,6 @@ for iter in range(1, n_iters + 1):
 plt.figure()
 plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
-
-for sample in LSTM_NN.samples(LSTM_NN,start_letters='E'):
+print('') #Clear the progress bar
+for sample in lstm.samples(start_letters='E'):
     print(sample)

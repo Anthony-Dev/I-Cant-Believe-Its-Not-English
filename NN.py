@@ -43,7 +43,6 @@ class LSTM_NN(nn.Module):
         self.max_sample_length = 180
 
         self.optimizer = torch.optim.Adam(self.parameters())
-
     def forward(self, input, hidden_array, state_array):
         ''' It is critical that hidden_array is an array containing the hidden state of all layers of the NN '''
 
@@ -96,7 +95,6 @@ class LSTM_NN(nn.Module):
         output = self.softmax(self.dropout(final_layer_output))
 
         return output, new_hidden_array, new_state_array
-
     def train(self,input_line_tensor, target_line_tensor):
         target_line_tensor.unsqueeze_(-1)
 
@@ -121,9 +119,6 @@ class LSTM_NN(nn.Module):
         self.optimizer.step()
 
         return output, loss.item() / input_line_tensor.size(0)
-
-
-
     def sample(self,start_letter='A'):
         with torch.no_grad():  # no need to track history in sampling
             input = tensorlib.inputTensor(start_letter)
@@ -146,6 +141,6 @@ class LSTM_NN(nn.Module):
             return output_pickup
     def samples(self, start_letters='ABC'):
         for start_letter in start_letters:
-            woah = self.sample(start_letter)
+            woah = self.sample(start_letter=start_letter)
             print(woah)
             yield woah
