@@ -22,7 +22,7 @@ tensorlib.torch_device = args.device
 
 text = support.readLines('./e.txt', sentenceDelimiter='.')
 
-lstm = LSTM_NN(support.n_letters,[128,128],support.n_letters,device=tensorlib.torch_device)
+lstm = LSTM_NN(support.n_letters,[128],support.n_letters,device=tensorlib.torch_device)
 
 n_iters = 10000
 print_every = 50
@@ -48,4 +48,5 @@ plt.figure()
 plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
 
-LSTM_NN.samples(LSTM_NN,start_letters='E')
+for sample in LSTM_NN.samples(LSTM_NN,start_letters='E'):
+    print(sample)
