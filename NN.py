@@ -25,8 +25,8 @@ class LSTM_NN(nn.Module):
             self.lstm_cell_array.append(nn.LSTMCell(input_dimension,output_dimension))
 
         self.final_tensor = nn.Linear(interior_layer_dimensions[-1],output_size)
-        self.dropout = nn.Dropout(0.5)
-        self.softmax = nn.LogSoftmax(dim=1)
+        self.dropout = nn.Dropout(0.1)
+        #self.softmax = nn.LogSoftmax(dim=1)
 
         # Transfer to CUDA if desirable
         self.device = device
@@ -34,15 +34,16 @@ class LSTM_NN(nn.Module):
             cell = cell.to(device=self.device)
         self.final_tensor = self.final_tensor.to(device=self.device)
         self.dropout = self.dropout.to(device=self.device)
-        self.softmax = self.softmax.to(device=self.device)
+        #self.softmax = self.softmax.to(device=self.device)
 
         # Initialize training parameters and functions
-        self.criterion = nn.NLLLoss().to(self.device)
+        #self.criterion = nn.NLLLoss().to(self.device)
+        self.criterion = nn.CrossEntropyLoss().to(self.device)
         self.learning_rate = 0.0005
 
         self.max_sample_length = 180
 
-        self.optimizer = torch.optim.Adam(self.parameters())
+        self.optimizer = torch.optim.Adam(self.parameters(),lr=1e-4)
     def forward(self, input, hidden_array, state_array):
         ''' It is critical that hidden_array is an array containing the hidden state of all layers of the NN '''
 
@@ -92,7 +93,8 @@ class LSTM_NN(nn.Module):
 
         # We now pass the output of the LSTM network to the final linear tensor, then we apply a softmax and dropout.
         final_layer_output = self.final_tensor(new_state_array[-1])
-        output = self.softmax(self.dropout(final_layer_output))
+        #output = self.softmax(self.dropout(final_layer_output))
+        output = self.dropout(final_layer_output)
 
         return output, new_hidden_array, new_state_array
     def train(self,input_line_tensor, target_line_tensor):

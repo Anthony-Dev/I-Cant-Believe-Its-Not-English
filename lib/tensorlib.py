@@ -6,7 +6,7 @@ torch_device = None
 
 # One hot Kronecker Delta Tensor of first to last letters (not including EOS) for input
 def inputTensor(line,device=torch_device):
-    tensor = torch.zeros(len(line), 1, support.n_letters,device=torch_device)
+    tensor = torch.zeros(len(line),1, support.n_letters,device=torch_device)
     for li in range(len(line)):
         letter = line[li]
         tensor[li][0][support.all_letters.find(letter)] = 1

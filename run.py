@@ -20,7 +20,7 @@ else:
 
 tensorlib.torch_device = args.device
 
-text = support.readLines('./e.txt', sentenceDelimiter='.')
+text = support.readLines('./fun/HPSS.txt', sentenceDelimiter='.')
 
 lstm = LSTM_NN(support.n_letters,[128],support.n_letters,device=tensorlib.torch_device)
 
@@ -48,5 +48,5 @@ plt.figure()
 plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
 print('') #Clear the progress bar
-for sample in lstm.samples(start_letters='E'):
+for sample in lstm.samples(start_letters='a'):
     print(sample)
