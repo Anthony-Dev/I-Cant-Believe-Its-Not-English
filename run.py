@@ -26,7 +26,7 @@ lstm = LSTM_NN(support.n_letters,[128,128],support.n_letters,device=tensorlib.to
 
 n_iters = 10000
 print_every = 50
-plot_every = 500
+plot_every = 10
 all_losses = []
 total_loss = 0 # Reset every plot_every iters
 
@@ -48,4 +48,4 @@ plt.figure()
 plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
 
-LSTM_NN.samples()
+LSTM_NN.samples(LSTM_NN,start_letters='E')
