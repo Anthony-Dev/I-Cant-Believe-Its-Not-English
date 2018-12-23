@@ -24,7 +24,7 @@ class LSTM_NN(nn.Module):
 
             self.lstm_cell_array.append(nn.LSTMCell(input_dimension,output_dimension))
 
-        self.final_tensor = nn.Linear(interior_layer_dimensions[-1],output_size)
+        #self.final_tensor = nn.Linear(interior_layer_dimensions[-1],output_size)
         #self.dropout = nn.Dropout(0.1)
         #self.softmax = nn.LogSoftmax(dim=1)
 
@@ -32,7 +32,7 @@ class LSTM_NN(nn.Module):
         self.device = device
         for cell in self.lstm_cell_array:
             cell = cell.to(device=self.device)
-        self.final_tensor = self.final_tensor.to(device=self.device)
+        #self.final_tensor = self.final_tensor.to(device=self.device)
         #self.dropout = self.dropout.to(device=self.device)
         #self.softmax = self.softmax.to(device=self.device)
 
@@ -93,7 +93,7 @@ class LSTM_NN(nn.Module):
 
         # We now pass the output of the LSTM network to the final linear tensor, then we apply a softmax and dropout.
         #final_layer_output = self.final_tensor(new_state_array[-1])
-        output = self.final_tensor(new_state_array[-1])
+        output = new_state_array[-1] #self.final_tensor(new_state_array[-1])
         #output = self.softmax(self.dropout(final_layer_output))
         #output = self.dropout(final_layer_output)
 
