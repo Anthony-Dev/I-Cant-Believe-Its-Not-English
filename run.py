@@ -22,7 +22,7 @@ tensorlib.torch_device = args.device
 
 text = support.readLines('./fun/HPSS.txt', sentenceDelimiter='.')
 
-lstm = LSTM_NN(support.n_letters,[128,128],support.n_letters,device=tensorlib.torch_device)
+lstm = LSTM_NN(support.n_letters,[1024],support.n_letters,device=tensorlib.torch_device)
 
 n_iters = 10000
 print_every = 50
