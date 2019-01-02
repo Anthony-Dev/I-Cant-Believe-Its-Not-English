@@ -43,10 +43,18 @@ def unicodeToAscii(s):
         and c in all_letters
     )
 
-def readLines(filename,sentenceDelimiter='@'):
-    '''Split contents of filename into an array of phrases split by the string sentenceDelimiter.'''
+def readLines(filename,mode='sequence',sentenceDelimiter='@'):
+    '''Split contents of filename into an array of phrases split by the string sentenceDelimiter. mode="sequence" splits the file into batches of 100 chars. mode="sentence" splits the file into batches after every sentenceDelimiter.'''
+
     with open(filename, "r") as file:
-        contents = file.read().strip('s').split(sentenceDelimiter)
+        if mode == 'sentence':
+            contents = file.read().strip('s').split(sentenceDelimiter)
+        elif mode == 'sequence':
+
+            BATCH_SIZE = 200
+
+            read_string = file.read().strip('s')
+            contents = [read_string[i:i + BATCH_SIZE] for i in range(0,len(read_string),BATCH_SIZE)]
         contents = [unicodeToAscii(sentence) for sentence in contents if sentence]
     return contents
 
