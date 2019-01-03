@@ -47,7 +47,7 @@ class LSTM_NN(nn.Module):
 
         self.max_sample_length = 180
 
-        self.optimizer = torch.optim.Adam(self.parameters(),lr=1e-4)
+        self.optimizer = torch.optim.RMSprop(self.parameters(),lr=1e-3)
 
     def forward(self, input, hidden_array, state_array):
         ''' It is critical that hidden_array is an array containing the hidden state of all layers of the NN '''
@@ -123,20 +123,23 @@ class LSTM_NN(nn.Module):
         self.optimizer.zero_grad()
 
         output,hidden,state = None,None,None
-        #loss = 0
+        loss = 0
+        for k in range(num_epochs):
+            for i in range(data_length):
+                output,hidden,state = self(input_data[i],hidden,state)
+                loss += self.criterion(output,target_data[i])
+                if i % backprop_interval == 0:
+                    self.optimizer.zero_grad()
+                    loss.backward()
+                    net_loss = loss.item()
 
-        for i in range(data_length):
-            output,hidden,state = self(input_data[i],hidden,state)
-            loss = self.criterion(output,target_data[i])
+                    self.optimizer.step()
+                    loss = 0
+                    for j in range(len(hidden)):
+                        hidden[j].detach_()
+                        state[j].detach_()
 
-            #if i % backprop_interval == 0:
-            self.optimizer.zero_grad()
-            loss.backward()
-            net_loss = loss.item()
-
-            self.optimizer.step()
-
-            yield i, data_length, output, net_loss
+                    yield (k*data_length + i), (num_epochs*data_length), output, net_loss / backprop_interval
     def sample(self,start_letter='A'):
         with torch.no_grad():  # no need to track history in sampling
             input = tensorlib.inputTensor(start_letter)
