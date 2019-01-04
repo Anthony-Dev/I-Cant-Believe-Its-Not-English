@@ -21,12 +21,12 @@ else:
 tensorlib.torch_device = args.device
 
 #text = support.readBook('./a.txt')
-text = support.readLines('./pickuplines.txt')
-
+#text = support.readLines('./pickuplines.txt')
+text = support.readLines('./fun/shakespeare.txt')
 
 lstm = LSTM_NN(support.n_letters,[512,512,512],support.n_letters,device=tensorlib.torch_device)
 
-n_iters = 10000
+n_iters = 100000
 print_every = 50
 plot_every = 10
 all_losses = []
@@ -48,7 +48,7 @@ for i,i_max, output, loss in lstm.train_2(text,num_epochs=1000,backprop_interval
 
 for iter in range(1, n_iters + 1):
     support.printProgress(iter,i_max=n_iters)
-    output, loss = lstm.train(*tensorlib.randomTrainingExample(text))
+    output, loss = lstm.teach(*tensorlib.randomTrainingExample(text))
     total_loss += loss
     if iter % print_every == 0:
         print('%s (%d %d%%) %.4f' % (support.timeSince(start), iter, iter / n_iters * 100, loss))
@@ -61,7 +61,8 @@ plt.scatter(range(len(all_losses)), all_losses, s=1)
 plt.savefig('train.png')
 
 print('') #Clear the progress bar
-for sample in lstm.samples(start_letters='T'):
-    print(sample)
+lstm = lstm.eval()
+for sample in lstm.samples(start_letters='F'):
+    print('===================')
 
 plt.show()

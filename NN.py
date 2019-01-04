@@ -28,7 +28,7 @@ class LSTM_NN(nn.Module):
         self.lstm_cell_array = nn.ModuleList(lstm_cell_array_temp)
 
         self.final_tensor = nn.Linear(interior_layer_dimensions[-1],output_size)
-        #self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(0.5)
         #self.softmax = nn.LogSoftmax(dim=1)
 
         # Transfer to CUDA if desirable
@@ -85,17 +85,16 @@ class LSTM_NN(nn.Module):
             else:
                 new_hidden,new_state = lstm_layer(previous_layer_state,(this_layer_hidden,this_layer_state))
 
-            new_hidden_array.append(new_hidden)
-            new_state_array.append(new_state)
+            new_hidden_array.append(self.dropout(new_hidden))
+            new_state_array.append(self.dropout(new_state))
 
         # We now pass the output of the LSTM network to the final linear tensor, then we apply a softmax and dropout.
         #final_layer_output = self.final_tensor(new_state_array[-1])
         output = self.final_tensor(new_state_array[-1])
         #output = self.softmax(self.dropout(final_layer_output))
-        #output = self.dropout(final_layer_output)
 
         return output, new_hidden_array, new_state_array
-    def train(self,input_line_tensor, target_line_tensor):
+    def teach(self,input_line_tensor, target_line_tensor):
         target_line_tensor.unsqueeze_(-1)
 
         self.optimizer.zero_grad()
@@ -112,7 +111,7 @@ class LSTM_NN(nn.Module):
         self.optimizer.step()
 
         return output, loss.item() / input_line_tensor.size(0)
-    def train_2(self,text,num_epochs=1,backprop_interval=100):
+    def teach_2(self,text,num_epochs=1,backprop_interval=100):
         input_data = tensorlib.inputTensor(text)
 
         data_length = input_data.size(0)
