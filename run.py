@@ -29,7 +29,7 @@ tensorlib.torch_device = args.device
 #text = support.readLines('./pickuplines.txt')
 
 
-lstm = LSTM_NN(support.n_letters,[512,512,512],support.n_letters,device=tensorlib.torch_device)
+lstm = LSTM_NN(read.n_letters,[512,512,512],read.n_letters,device=tensorlib.torch_device)
 
 n_iters = 10000
 print_every = 50
@@ -39,7 +39,7 @@ total_loss = 0 # Reset every plot_every iters
 
 start = time.time()
 if args.experimental_trainer:
-    text = support.readBook('./fun/shakespeare.txt')
+    text = read.toString('./fun/shakespeare.txt')
     for i,i_max, output, loss in lstm.train_2(text,num_epochs=1000,backprop_interval=1):
         support.printProgress(i,i_max=i_max)
         total_loss += loss
@@ -48,7 +48,9 @@ if args.experimental_trainer:
             support.printOW('%s (%d %d%%) %.4f' % (support.timeSince(start), i, i / i_max * 100, loss))
 
         if i % plot_every == 0:
-            all_losses.append(total_loss / plot_every)
+            avg_loss = total_loss / plot_every
+            if avg_loss < 5:
+                all_losses.append(avg_loss)
             total_loss = 0
 
     plt.figure()
