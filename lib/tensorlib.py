@@ -1,21 +1,22 @@
 import torch
 from random import randint
 from lib import support
+from lib import read
 
 torch_device = None
 
 # One hot Kronecker Delta Tensor of first to last letters (not including EOS) for input
 def inputTensor(line,device=torch_device):
-    tensor = torch.zeros(len(line),1, support.n_letters,device=torch_device)
+    tensor = torch.zeros(len(line),1, read.n_letters,device=torch_device)
     for li in range(len(line)):
         letter = line[li]
-        tensor[li][0][support.all_letters.find(letter)] = 1
+        tensor[li][0][read.all_letters.find(letter)] = 1
     return tensor
 
 # LongTensor of second letter to end (EOS) for target
 def targetTensor(line,device=torch_device):
-    letter_indices = [support.all_letters.find(line[li]) for li in range(1, len(line))]
-    letter_indices.append(support.n_letters - 1) # EOS
+    letter_indices = [read.all_letters.find(line[li]) for li in range(1, len(line))]
+    letter_indices.append(read.n_letters - 1) # EOS
     return torch.LongTensor(letter_indices).to(device=torch_device)
 
 def getTrainingBatches(string,batchSize=1000):
