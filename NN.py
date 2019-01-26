@@ -29,25 +29,25 @@ class LSTM_NN(nn.Module):
 
         self.final_tensor = nn.Linear(interior_layer_dimensions[-1],output_size)
         self.dropout = nn.Dropout(0.5)
-        #self.softmax = nn.LogSoftmax(dim=1)
+        self.softmax = nn.LogSoftmax(dim=1)
 
         # Transfer to CUDA if desirable
         self.device = device
         self.lstm_cell_array.to(device=self.device)
+        self.dropout.to(device=self.device)
 
-        self.final_tensor = self.final_tensor.to(device=self.device)
+
+        self.final_tensor.to(device=self.device)
 
         #self.dropout = self.dropout.to(device=self.device)
         #self.softmax = self.softmax.to(device=self.device)
 
         # Initialize training parameters and functions
-        #self.criterion = nn.NLLLoss().to(self.device)
         self.criterion = nn.CrossEntropyLoss().to(self.device)
-        self.learning_rate = 0.0005
 
-        self.max_sample_length = 180
+        self.max_sample_length = 360
 
-        self.optimizer = torch.optim.RMSprop(self.parameters(),lr=1e-3)
+        self.optimizer = torch.optim.RMSprop(self.parameters(),lr=2e-3)
 
     def forward(self, input, hidden_array, state_array):
         ''' It is critical that hidden_array is an array containing the hidden state of all layers of the NN '''
