@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from lib import support
 from lib import tensorlib
+from lib import read
 
 class LSTM_NN(nn.Module):
     def __init__(self, input_size, interior_layer_dimensions, output_size,device=tensorlib.torch_device):
@@ -151,10 +152,10 @@ class LSTM_NN(nn.Module):
                 output, hidden,state = self(input[0], hidden,state)
                 top_value, top_index = output.topk(1)
                 topi = top_index[0][0]
-                if topi == support.n_letters - 1:
+                if topi == read.n_letters - 1:
                     break
                 else:
-                    letter = support.all_letters[topi]
+                    letter = read.all_letters[topi]
                     output_pickup += letter
                 input = tensorlib.inputTensor(letter)
 
