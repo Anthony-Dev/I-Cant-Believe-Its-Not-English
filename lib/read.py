@@ -1,7 +1,7 @@
 import unicodedata
 import string
 
-all_letters = string.printable + string.whitespace + ' ' + "\x03" # The last one is EOF
+all_letters = string.printable # + string.whitespace + ' ' + "\x03" # The last one is EOF
 n_letters = len(all_letters)
 
 def unicodeToAscii(s):

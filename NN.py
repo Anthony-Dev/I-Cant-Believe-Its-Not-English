@@ -96,6 +96,7 @@ class LSTM_NN(nn.Module):
 
         return output, new_hidden_array, new_state_array
     def teach(self,input_line_tensor, target_line_tensor):
+        self.train()
         target_line_tensor.unsqueeze_(-1)
 
         self.optimizer.zero_grad()
@@ -113,6 +114,7 @@ class LSTM_NN(nn.Module):
 
         return output, loss.item() / input_line_tensor.size(0)
     def teach_2(self,text,num_epochs=1,backprop_interval=100):
+        self.train()
         input_data = tensorlib.inputTensor(text)
 
         data_length = input_data.size(0)
@@ -141,6 +143,7 @@ class LSTM_NN(nn.Module):
 
                     yield (k*data_length + i), (num_epochs*data_length), output, net_loss / backprop_interval
     def sample(self,start_letter='A'):
+        self.eval()
         with torch.no_grad():  # no need to track history in sampling
             input = tensorlib.inputTensor(start_letter)
             hidden = None
