@@ -48,7 +48,7 @@ class LSTM_NN(nn.Module):
 
         self.max_sample_length = 360
 
-        self.optimizer = torch.optim.RMSprop(self.parameters(),lr=2e-3)
+        self.optimizer = torch.optim.RMSprop(self.parameters(),lr=8e-3)
 
     def forward(self, input, hidden_array, state_array):
         ''' It is critical that hidden_array is an array containing the hidden state of all layers of the NN '''

@@ -29,7 +29,7 @@ tensorlib.torch_device = args.device
 #text = support.readLines('./pickuplines.txt')
 
 
-lstm = LSTM_NN(read.n_letters,[256,256],read.n_letters,device=tensorlib.torch_device)
+lstm = LSTM_NN(read.n_letters,[512,512,512],read.n_letters,device=tensorlib.torch_device)
 
 n_iters = 20000
 print_every = 50
@@ -40,7 +40,7 @@ total_loss = 0 # Reset every plot_every iters
 
 start = time.time()
 if args.experimental_trainer:
-    text = read.toString('./pickuplines.txt')
+    text = read.toString('./shakespeare.txt')
     for i,i_max, output, loss in lstm.teach_2(text,num_epochs=100,backprop_interval=backpropagation_interval):
         support.printProgress(i,i_max=i_max)
         total_loss += loss
@@ -66,7 +66,7 @@ if args.experimental_trainer:
 
 else:
 
-    text = read.toArray('./pickuplines.txt')
+    text = read.toArray('./shakespeare.txt')
     for iter in range(1, n_iters + 1):
         support.printProgress(iter,i_max=n_iters)
         output, loss = lstm.teach(*tensorlib.randomTrainingExample(text))
