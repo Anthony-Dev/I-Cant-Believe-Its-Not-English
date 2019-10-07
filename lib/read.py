@@ -12,7 +12,7 @@ def unicodeToAscii(s):
         and c in all_letters
     )
 
-def toGenerator(filename,string_length=100):
+def toGenerator(filename,string_length=1000):
     ''' Yields a tuple of strings, one is the input string to the network, the second is the validation string '''
     with open(filename,"r") as file:
         contents = unicodeToAscii(file.read())
